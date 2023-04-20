@@ -36,15 +36,10 @@ ExactAnalysis <- function() {
   "There is only one way for the first bus to arrive to be the third bus, that is 
   the first three buses leave with delay 1."
   p_Ueq3 <- p[1]^3
-#  exp_Wait
-#  var_W
-#  exp_Bus
-#  exp_numBusesByM
-#  var_numBusesByM
-#  exp_numBusesLeavingGivenWeqK
-  busRes <- busSim(m,p,v,k,r,q,nDays)
+
+  print(busSim(m,p,v,k,r,q,nDays))
   # return (list(p_wEqualk,p_bus2LeavesAtR, p_WequalKgivenL1eqQ))
-  return (busRes)
+  return (c(p_wEqualk, p_WequalKgivenL1eqQ))
 }
 # in our "notebook," 1 line = 1 day
 
@@ -53,19 +48,18 @@ busSim <- function(m,p,v,k,r,q,nDays)
   wVals <- vector(length=nDays)  # set up space for the Ws
   busCounts <- vector(length = nDays)
   busCountsByM <- vector(length = nDays)
-  busCountsByR <- vector(length = nDays)
-    # waitVals
+  bus2LeavesByR <- vector(length = nDays)
   for (day in 1:nDays) {
     res <- generateW(v,p,m)
     wVals[day] <- res[1]
     busCounts[day] <- res[2]
     busCountsByM[day] <- generateBusByM(p,m)
-    busCountsByR[day] <- generateBusByM(p,r)
+    bus2LeavesByR[day] <- doesBusXLeaveAtTimeR(p,2,r)
   }
   # T and F treated as 1 and 0; mean of 1s and 0s
   # is proportion of 1s
   p_wEqualk <- mean(wVals == k)
-  p_bus2LeavesAtR <- mean(busCountsByR == 2)
+  p_bus2LeavesAtR <- mean(bus2LeavesByR)
     for (day in 1:nDays) wVals[day] <- generateW(v,p,m-1)[1]
   p_WequalKgivenL1eqQ <- mean(wVals == k)
   p_Ueq3 <- mean(busCounts == 3)
@@ -78,16 +72,24 @@ busSim <- function(m,p,v,k,r,q,nDays)
   var_numBusesByM <- mean(busCountsByM^2) - (mean(busCountsByM))^2
   for (day in 1:nDays) busCounts[day] <- generateW(v,p,m,k)[2]
   exp_numBusesLeavingGivenWeqK <- mean(busCounts)
-  # print(mean(busCountsByM))
-  # print(mean(busCountsByM==3))
-  # print(mean(busCountsByM==4))
-  # print(mean(busCountsByM==5))
-  # return(mean(wVals == k))  
-  return (list(p_wEqualk,p_bus2LeavesAtR, p_WequalKgivenL1eqQ,p_Ueq3,exp_Wait, var_W, 
+  return (c(p_wEqualk,p_bus2LeavesAtR, p_WequalKgivenL1eqQ,p_Ueq3,exp_Wait, var_W, 
                exp_Bus, exp_numBusesByM, var_numBusesByM, exp_numBusesLeavingGivenWeqK))
 }
 
 "Find the number of buses leaving the main station by time m"
+doesBusXLeaveAtTimeR <- function(p,x,r)
+{
+  buses <- 0 # count of buses
+  total <- 0 # how much total delay has there been
+  while (1) {
+    buses <- buses + 1
+    total <- total + generateL(p)
+    if (total>r) return (FALSE)
+    if (total==r) break # stop when were at time 5
+  }
+  return (TRUE) # return count 
+}
+
 generateBusByM <- function(p,m)
 {
   buses <- 0 # count of buses
@@ -102,8 +104,8 @@ generateBusByM <- function(p,m)
 
 generateW <- function(v,p,m,k=-1) 
 {
-  buses <- 0
-  tot <- v
+  buses <- 0 # count of buses
+  tot <- v # how much total delay has there been
   while (1) {
     buses <- buses + 1
     tot <- tot + generateL(p)
