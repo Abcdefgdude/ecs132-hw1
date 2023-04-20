@@ -24,7 +24,12 @@ ExactAnalysis <- function() {
   "P(B_2 leaves at time r = 3) 
    P"
   p_bus2LeavesAtR <- (p[1] * p[2]) + (p[2] * p[1])
-  p_WequalKgivenL1eqQ <- 
+  "P(W = 1 | L_1 = 1) = P(W = 1 and L_1 = 1) / P(L_1)
+  Out of the two possible cases where W = 1, where busses have delay (2,2) 
+  and (1,1,2) only the later case has L_1 = 1. In this case (1,1,2) the following 
+  busses must leave with delays L_2 = 1 and L_3 = 2 for W = 1. 
+  So, P(W = 1 and L_1 = 1) / P(L_1) = 0.5^3 / 0.5"
+  p_WequalKgivenL1eqQ <- (0.5^3) / 0.5
 #  p_Ueq3
 #  exp_Wait
 #  var_W
