@@ -57,7 +57,3 @@ admissionsProbs <- function() {
   
   return(res)
 }
-
-UCBAdmitProbs <- admissionsProbs()
-print(UCBAdmitProbs)
-print(UCBAdmissions[1,2,3])

@@ -5,7 +5,6 @@ ExactAnalysis <- function() {
   k <- 1
   r <- 3
   q <- 1
-  nDays <- 10000
   " k = 1, m = 5, P(bus gets there at t=6) = P(bus leaves the station at 6 -v = 4) < 1 wait
   - P(bus leaves at station 5 - v = 3) < 0 wait
   P(bus leaves at 4) = 
@@ -39,10 +38,8 @@ ExactAnalysis <- function() {
   "There are two ways for the first bus to arrive to be the third bus, that is 
   the first three buses leave with delays (1,1,1) or (1,1,2). So the probability
   that the passenger boards the third bus is 2 * 0.5^3"
-  p_Ueq3 <- (p[1]*p[1]*p[1]) + (p[1]*p[1]*p[2])
-  
-  print(busSim(m,p,v,k,r,q,nDays))
-  return (c(p_wEqualk, p_WequalKgivenL1eqQ))
+  # p_Ueq3 <- (p[1]*p[1]*p[1]) + (p[1]*p[1]*p[2])
+  return (c(p_bus2LeavesAtR, p_WequalKgivenL1eqQ))
 }
 # in our "notebook," 1 line = 1 day
 
@@ -103,9 +100,7 @@ busSim <- function(m,p,v,k,r,q,nDays)
   # Generates new data: Doesn't matter if we update the data due to Law of Large Numbers
   # Finds all the buses where Wait = k given that the last bus arrives by time m
   
-  # OFF BY 1 ERROR HERE: total == m --> One extra loop iteration
   busCounts <- replicate(nDays, generateBusByM(p,m,v,k))
-  
   # Finds avg num of buses that leave by time m given the wait time is k for the passenger
   exp_numBusesLeavingByTimeMGivenWeqK <- mean(busCounts)
   
@@ -186,5 +181,3 @@ generateL <- function(p)
   # 1,2,3, with probabilities 0.2, 0.2 and 0.6, respectively
   sample(1:length(p),1,prob=p)
 }
-
-print(ExactAnalysis())
