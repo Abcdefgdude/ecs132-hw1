@@ -5,7 +5,7 @@ ExactAnalysis <- function() {
   k <- 1
   r <- 3
   q <- 1
-  nDays <- 10000
+  nDays <- 100
   " k = 1, m = 5, P(bus gets there at t=6) = P(bus leaves the station at 6 -v = 4) < 1 wait
   - P(bus leaves at station 5 - v = 3) < 0 wait
   P(bus leaves at 4) = 
@@ -70,6 +70,11 @@ busSim <- function(m,p,v,k,r,q,nDays)
   exp_numBusesByM <- mean(busCountsByM)
   # Var(buses) = E(buses^2) - (E(buses))^2
   var_numBusesByM <- mean(busCountsByM^2) - (mean(busCountsByM))^2
+  print(mean(busCountsByM == 2))
+  print(mean(busCountsByM == 3))
+  print(mean(busCountsByM == 4))
+  print(mean(busCountsByM == 5))
+  print(busCountsByM)
   for (day in 1:nDays) busCounts[day] <- generateW(v,p,m,k)[2]
   exp_numBusesLeavingGivenWeqK <- mean(busCounts)
   return (c(p_wEqualk,p_bus2LeavesAtR, p_WequalKgivenL1eqQ,p_Ueq3,exp_Wait, var_W, 
@@ -84,10 +89,9 @@ doesBusXLeaveAtTimeR <- function(p,x,r)
   while (1) {
     buses <- buses + 1
     total <- total + generateL(p)
-    if (total>r) return (FALSE)
-    if (total==r) break # stop when were at time 5
+    if (total>r) return (FALSE) # total went past r, return false
+    if (total==r) return (buses == x) # total is at r, check number of buses
   }
-  return (TRUE) # return count 
 }
 
 generateBusByM <- function(p,m)
@@ -97,7 +101,8 @@ generateBusByM <- function(p,m)
   while (1) {
     buses <- buses + 1
     total <- total + generateL(p)
-    if (total>=m) break # stop when were at time 5
+    if (total>m) return(buses-1) # if total goes above m, take away the last bus
+    if (total==m) return(buses) # stop counting at time m 
   }
   return (buses) # return count 
 }
