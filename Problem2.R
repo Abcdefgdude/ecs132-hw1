@@ -81,7 +81,11 @@ busSim <- function(m,p,v,k,r,q,nDays)
   
   # Generates new data: doesn't matter if we do so due to Law of Large Numbers
   # L1 = q indicates the delay that L1 has before it leaves the main station
-  for (day in 1:nDays) wVals[day] <- generateW(v,p,m-1)[1]
+  # wVals <- replicate(nDays, generateW(v,p,m-q)[1])
+  # print(mean(wVals))
+  # 
+  wVals <- replicate(nDays, generateWgivenQ(v,p,m,q)[1])
+  print(mean(wVals))
   
   # Find all Wait times == k and divide by all the wait times
   # This doesn't seem right. We need to filter out Bus 1s that have delay = q.
@@ -100,7 +104,7 @@ busSim <- function(m,p,v,k,r,q,nDays)
   # Finds all the buses where Wait = k given that the last bus arrives by time m
   
   # OFF BY 1 ERROR HERE: total == m --> One extra loop iteration
-  for (day in 1:nDays) busCounts[day] <- generateW(v,p,m,k)[2]
+  busCounts <- replicate(nDays, generateBusByM(p,m,v,k))
   
   # Finds avg num of buses that leave by time m given the wait time is k for the passenger
   exp_numBusesLeavingByTimeMGivenWeqK <- mean(busCounts)
@@ -122,16 +126,43 @@ doesBusXLeaveAtTimeR <- function(p,x,r)
   }
 }
 
-generateBusByM <- function(p,m)
+generateBusByM <- function(p,m,v=0,k=-1)
 {
   buses <- 0 # count of buses
   total <- 0 # how much total time has passed before passenger boards
   while (1) {
     buses <- buses + 1 # another bus left
     total <- total + generateL(p)
+    if (k != -1 & total + v >= m) { 
+      wait <- total + v - m
+      if (wait != k) return (generateBusByM(p,m,v,k))
+      while (total < m) {
+        buses <- buses + 1 # another bus left
+        total <- total + generateL(p)
+      }
+    }
     if (total>m) return(buses-1) # if total goes above m, take away the last bus
     if (total==m) return(buses) # stop counting at time m 
   }
+}
+
+# ignore any results where L1 != q
+generateWgivenQ <- function(v,p,m,q,k=-1) 
+{
+  if (q > length(p)) return (NA)
+  buses <- 0 # count of buses
+  total <- v # how much time passed before passenger boards
+  while (1) {
+    buses <- buses + 1 # another bus left
+    total <- total + generateL(p)
+    # if L1 != q then restart function 
+    if (buses == 1 & total != v + q) return (generateWgivenQ(v,p,m,q))
+    if (total >= m) break # stop counting once bus has arrived at the stop
+  }
+  # if a given k value was passed, only accept when the wait = k 
+  if (k != -1 & total - m != k) return (generateW(v,p,m,k)) 
+  # total-m = Total wait time; buses - Bus that passenger got on/total num of buses that passed
+  return(c(total-m,buses))
 }
 
 generateW <- function(v,p,m,k=-1) 
@@ -155,3 +186,5 @@ generateL <- function(p)
   # 1,2,3, with probabilities 0.2, 0.2 and 0.6, respectively
   sample(1:length(p),1,prob=p)
 }
+
+print(ExactAnalysis())

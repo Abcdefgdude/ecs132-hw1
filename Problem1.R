@@ -30,7 +30,7 @@ admissionsProbs <- function() {
   # P(admit | female and Dept. C) == P(admit & female & dept c) / P(female & dept c)
   # = 202 / 593
   p_femaleandDeptC <- sum(UCBAdmissions[,2,3]) / totalAdmissions
-  p_admitandFemaleandDeptC <- sum(UCBAdmissions[1,2,3]) / totalAdmissions
+  p_admitandFemaleandDeptC <- UCBAdmissions[1,2,3] / totalAdmissions
   p_admitGivenFemaleandDeptC <- p_admitandFemaleandDeptC / p_femaleandDeptC
   
   # P(Dept. C | female) == P(dept c & female) / P(female)
@@ -46,13 +46,13 @@ admissionsProbs <- function() {
   # == P(admit and female and (Dept B. or Dept C)) / P(female and (Dept B. or Dept. C))
   # == P(admit and female and Dept B) + P(admit and female and Dept C) / P(female and Dept B) + P(female and Dept C)
   # (17 + 202) / (25 + 593)
-  p_femaleandDeptBorC <- sum(UCBAdmissions[,2,2] + UCBAdmissions[,2,3]) / totalAdmissions
-  p_admitandFemaleandDeptBorC <- sum(UCBAdmissions[1,2,2] + UCBAdmissions[1,2,3]) / totalAdmissions
+  p_femaleandDeptBorC <- sum(UCBAdmissions[,2,2:3]) / totalAdmissions
+  p_admitandFemaleandDeptBorC <- sum(UCBAdmissions[1,2,2:3]) / totalAdmissions
   p_admitGivenFemaleandDeptBorC <- p_admitandFemaleandDeptBorC / p_femaleandDeptBorC
   
-  res <- list(p_admit, p_admitGivenFemale, 
+  res <- c(p_admit, p_admitGivenFemale, 
               p_admitGivenFemaleandDeptB, p_admitGivenFemaleandDeptC, 
-              p_deptCGivenFemale, p_admitGivenFemaleandDeptBorC, 
+              p_deptCGivenFemale, p_admitGivenFemaleandDeptBorC, p_femaleGivenAdmit,
               p_admitandFemale, p_deptCorD)
   
   return(res)
@@ -60,3 +60,4 @@ admissionsProbs <- function() {
 
 UCBAdmitProbs <- admissionsProbs()
 print(UCBAdmitProbs)
+print(UCBAdmissions[1,2,3])
