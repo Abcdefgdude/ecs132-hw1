@@ -3,6 +3,7 @@
 
 admissionsProbs <- function() {
   totalAdmissions <- sum(UCBAdmissions)
+  
   # P(admit) = 1755/4526 
   # (totalAdmits / totalAdmissions)
   p_admit <- sum(UCBAdmissions[1,,]) / totalAdmissions
