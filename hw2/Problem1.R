@@ -25,11 +25,12 @@ PAMsim <- function(nGen) {
 }
 
 PAMemaxd <- function(nGen, nReps) {
-  maxdegrees <- vector(length=nReps)
+  maxdegrees <- vector(length = nReps)
   for (i in 1:nReps) {
     adjMatrix <- PAMsim(nGen)[[1]]
-    connections <- vector(length=nGen + 2)
-    for (j in 1:(nGen+2)) connections[j] <- sum(adjMatrix[j,])  
+    connections <- vector(length = nGen + 2)
+    for (j in 1:(nGen + 2))
+      connections[j] <- sum(adjMatrix[j, ])
     connections <- sort(connections, decreasing = TRUE)
     maxdegrees[i] <- connections[1]
   }
