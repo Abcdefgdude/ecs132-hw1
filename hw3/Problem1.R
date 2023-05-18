@@ -31,7 +31,8 @@ qpark <- function(p,d,q) {
 }
 
 rpark <- function(n,p,d) {
+  # generate n spots 
   spots <- rgeom(n,p)
-  print(spots)
+  # return how far way they are from the destination
   return (abs(spots - d))
 }
