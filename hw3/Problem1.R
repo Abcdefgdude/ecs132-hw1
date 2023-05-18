@@ -15,9 +15,10 @@ ppark <- function(p,d,i) {
   i <- floor(i) # take floor of i to account for decimal inputs (you cant park half a spot away)
   if (i > d) min <- d
   else min <- i
+  max <- i
   # at least one open spot is the opposite of there being 0 open spots within the window around
   # P(no spots) = (1-p)^(window)
-  return (1 - p)^(max + min)
+  return (1 - (1 - p)^(max + min))
 }
 
 qpark <- function(p,d,q) {
@@ -26,6 +27,7 @@ qpark <- function(p,d,q) {
   while (TRUE) {
     percent <- ppark(p,d,i)
     if (percent >= q) break
+    i <- i + 1
   }
   return (i)
 }
