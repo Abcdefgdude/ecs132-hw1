@@ -9,7 +9,7 @@ findpi1 <- function(p) {
 
 callCtr <- function(p, q, r, w) {
   # Transition probability matrix
-  num_states <- r + w
+  num_states <- r + w + 1
   P <- matrix(0, nrow = num_states, ncol = num_states)
   
   # Set up transition probabilities for each state
@@ -18,12 +18,12 @@ callCtr <- function(p, q, r, w) {
       # No calls in the system
       P[i,i] = 1 - q # a new call does not arrive
       P[i,2] = q # a new call does arrive
-    } else if (i <= r) {
+    } else if (i <= r + 1) {
       for (j in 0:i)  {# how many existing calls finish
         P[i,i-j+1] <- P[i,i-j+1] + dbinom(j,i,p)*(q) # j calls finish, a new call comes in
         P[i,i-j] <- P[i,i-j] + dbinom(j,i,p)*(1-q) # j calls finish, no new call comes in
       }
-    } else if (i < r + w) {
+    } else if (i < r + w + 1) {
       # Calls in the waiting area
       # a maximum of r calls could finish
       for (j in 0:r) {
@@ -45,13 +45,14 @@ callCtr <- function(p, q, r, w) {
   pi <- findpi1(P)
   # probability that a call is dropped = 
   # P(full calls) * P(no calls dropped) * P(new call)
-  call_dropped <- pi[r+w] * dbinom(0,r,p) * q
+  call_dropped <- pi[r+w+1] * dbinom(0,r,p) * q
   # average number of calls on hold = sum(1,w) of P(holds = i) * i
-  average_holds <- (1:w) %*% pi[(r+1):(r+w)]
-  #return(results)
+  average_holds <- (1:w) %*% pi[(r+2):(r+w+1)]
   # average number of busy operators = sum(1,r) of P(calls = i) * i + sum(r,r+w) P(holds = i) * i
-  average_calls <- (1:r) %*% pi[1:r] + rep(r,w) %*% pi[(r+1):(r+w)]
+  average_calls <- (0:r) %*% pi[1:(r+1)] + rep(r,w) %*% pi[(r+1):(r+w)]
+  print(P)
+  print(pi)
   return(c(call_dropped,average_holds,average_calls))
 }
-results <- callCtr(0.5, 0.5, 5, 3)
+results <- callCtr(0.3, 0.7, 5, 3)
 print(results)
