@@ -13,15 +13,15 @@ callCtr <- function(p, q, r, w) {
   P <- matrix(0, nrow = num_states, ncol = num_states)
   
   # Set up transition probabilities for each state
-  for (i in 1:num_states) { # i represents the state where we have i calls active + on hold
+  for (i in 1:num_states) { # i represents the state where we have i-1 calls active + on hold
     if (i == 1) { 
       # No calls in the system
       P[i,i] = 1 - q # a new call does not arrive
       P[i,2] = q # a new call does arrive
     } else if (i <= r + 1) {
       for (j in 0:i)  {# how many existing calls finish
-        P[i,i-j+1] <- P[i,i-j+1] + dbinom(j,i,p)*(q) # j calls finish, a new call comes in
-        P[i,i-j] <- P[i,i-j] + dbinom(j,i,p)*(1-q) # j calls finish, no new call comes in
+        P[i,i-j+1] <- P[i,i-j+1] + dbinom(j,i-1,p)*(q) # j calls finish, a new call comes in
+        P[i,i-j] <- P[i,i-j] + dbinom(j,i-1,p)*(1-q) # j calls finish, no new call comes in
       }
     } else if (i < r + w + 1) {
       # Calls in the waiting area
@@ -43,6 +43,7 @@ callCtr <- function(p, q, r, w) {
   }
   # Calculate long-run proportions and averages
   pi <- findpi1(P)
+  for (i in 1:num_states) print(sum(P[i,]))
   # probability that a call is dropped = 
   # P(full calls) * P(no calls dropped) * P(new call)
   call_dropped <- pi[r+w+1] * dbinom(0,r,p) * q
@@ -54,5 +55,5 @@ callCtr <- function(p, q, r, w) {
   print(pi)
   return(c(call_dropped,average_holds,average_calls))
 }
-results <- callCtr(0.3, 0.7, 5, 3)
+results <- callCtr(0.5, 0.5, 5, 3)
 print(results)
